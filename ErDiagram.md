@@ -1,67 +1,59 @@
-# ER Diagram – HireLens AI
+erDiagram
 
-## users
-- _id
-- email
-- passwordHash
-- role
+    USERS {
+        string _id
+        string email
+        string passwordHash
+        string role
+    }
 
----
+    RESUMES {
+        string _id
+        string candidateId
+        string rawText
+        string skills
+        string experienceSummary
+        string embeddingVector
+        date createdAt
+    }
 
-## resumes
-- _id
-- candidateId (FK → users._id)
-- rawText
-- skills
-- experienceSummary
-- embeddingVector
-- createdAt
+    JOBS {
+        string _id
+        string recruiterId
+        string title
+        string requiredSkills
+        string experienceLevel
+        string embeddingVector
+        date createdAt
+    }
 
----
+    MATCH_RESULTS {
+        string _id
+        string jobId
+        string resumeId
+        float finalScore
+        int rank
+        string scoreBreakdown
+    }
 
-## jobs
-- _id
-- recruiterId (FK → users._id)
-- title
-- requiredSkills
-- experienceLevel
-- embeddingVector
-- createdAt
+    FEEDBACK {
+        string _id
+        string matchResultId
+        string recruiterId
+        string decision
+        date createdAt
+    }
 
----
+    SCORING_PROFILES {
+        string _id
+        float skillWeight
+        float experienceWeight
+        float semanticWeight
+        date effectiveFrom
+    }
 
-## match_results
-- _id
-- jobId (FK → jobs._id)
-- resumeId (FK → resumes._id)
-- finalScore
-- rank
-- scoreBreakdown
-
----
-
-## feedback
-- _id
-- matchResultId (FK → match_results._id)
-- recruiterId (FK → users._id)
-- decision
-- createdAt
-
----
-
-## scoring_profiles
-- _id
-- skillWeight
-- experienceWeight
-- semanticWeight
-- effectiveFrom
-
----
-
-## Relationships
-
-- One candidate (user) can have many resumes
-- One recruiter (user) can create many jobs
-- One job can have many match results
-- One resume can appear in many match results
-- One match result can have one feedback
+    USERS ||--o{ RESUMES : owns
+    USERS ||--o{ JOBS : creates
+    JOBS ||--o{ MATCH_RESULTS : produces
+    RESUMES ||--o{ MATCH_RESULTS : participates
+    MATCH_RESULTS ||--|| FEEDBACK : has

@@ -1,36 +1,30 @@
-# Use Case Diagram – HireLens AI
+flowchart LR
 
-## Actors
+    Candidate((Candidate))
+    Recruiter((Recruiter))
+    Admin((Admin))
 
-- Candidate
-- Recruiter
-- Admin
+    subgraph HireLens_AI_System
+        UC1[Register / Login]
+        UC2[Upload Resume]
+        UC3[View Resume Insights]
+        UC4[Upload Job Description]
+        UC5[View Ranked Candidates]
+        UC6[View Match Explanation]
+        UC7[Give Feedback on Match]
+        UC8[Manage Users]
+        UC9[Monitor Model Performance]
+    end
 
----
+    Candidate --> UC1
+    Candidate --> UC2
+    Candidate --> UC3
 
-## Candidate Use Cases
+    Recruiter --> UC1
+    Recruiter --> UC4
+    Recruiter --> UC5
+    Recruiter --> UC6
+    Recruiter --> UC7
 
-- Register and login
-- Upload resume
-- View match feedback
-- View missing skills
-- View improvement suggestions
-
----
-
-## Recruiter Use Cases
-
-- Register and login
-- Upload job description
-- View ranked candidates
-- View candidate match details
-- Provide feedback on candidates
-
----
-
-## Admin Use Cases
-
-- View system usage analytics
-- View matching performance metrics
-- Manage scoring configuration
-- Enable or disable scoring profiles
+    Admin --> UC8
+    Admin --> UC9

@@ -1,41 +1,30 @@
-# Use Case Diagram – Digital Attendance & Performance Monitoring Platform
+@startuml
+left to right direction
 
-## Actors
+actor Student
+actor Teacher
+actor Admin
 
-1. Student
-2. Teacher
-3. Admin
+Student --> (Login)
+Student --> (Mark Attendance)
+Student --> (View Attendance History)
+Student --> (Submit Correction Request)
+Student --> (Submit Assignment)
+Student --> (View Performance Analytics)
 
-## Student Use Cases
-- Register / Login
-- View assigned sessions
-- Mark attendance (auto captured)
-- View attendance history
-- Submit attendance correction request
-- Submit assignments
-- View marks and performance analytics
+Teacher --> (Create Session)
+Teacher --> (Mark Session Attendance)
+Teacher --> (Review Correction Request)
+Teacher --> (Approve / Reject Correction)
+Teacher --> (Create Assignment)
+Teacher --> (Evaluate Assignment)
+Teacher --> (View Class Analytics)
 
-## Teacher Use Cases
-- Create academic sessions
-- Mark attendance for a session
-- View and edit attendance before lock
-- Review correction requests
-- Approve / Reject correction requests
-- Create assignments
-- Evaluate assignments
-- View class analytics
+Admin --> (Manage Users)
+Admin --> (Configure Late Rules)
+Admin --> (Configure Attendance Lock Rules)
+Admin --> (Override Attendance Decision)
+Admin --> (View Institute Analytics)
+Admin --> (View Audit Logs)
 
-## Admin Use Cases
-- Manage users
-- Manage courses / batches
-- Configure late entry rules
-- Configure attendance lock rules
-- Override attendance decisions
-- View institute-level analytics
-- Audit attendance changes
-
-## Relationships
-
-Student -> Attendance, Assignment, Performance
-Teacher -> Sessions, Attendance, Corrections, Assignments
-Admin -> Configuration, Audit, Overrides
+@enduml

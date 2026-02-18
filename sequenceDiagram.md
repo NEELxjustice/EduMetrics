@@ -1,83 +1,159 @@
-# Sequence Diagram – Attendance and Correction Workflow
+sequenceDiagram
 
-## Main Flow – Attendance Marking
+actor Student
+actor Teacher
+actor Admin
 
-Student -> Frontend:
-Request to mark attendance
+participant Frontend
+participant AuthController
+participant AttendanceController
+participant CorrectionController
+participant AnalyticsController
 
-Frontend -> API Gateway:
-POST /attendance/mark
+participant AttendanceService
+participant CorrectionService
+participant SessionService
+participant AnalyticsService
+participant LateRuleEngine
+participant AttendanceLockPolicy
+participant AuditService
+participant NotificationService
 
-API Gateway -> AttendanceController:
-markAttendance()
-
-AttendanceController -> AttendanceService:
-validateSessionAndTime()
-
-AttendanceService -> SessionRepository:
-getSessionDetails()
-
-AttendanceService:
-checkLateRule()
-
-AttendanceService -> AttendanceRepository:
-saveAttendance()
-
-AttendanceService -> AuditService:
-logAttendanceCreation()
-
-AttendanceController -> Frontend:
-attendance marked response
+participant AttendanceRepository
+participant SessionRepository
+participant CorrectionRepository
+participant AuditRepository
+participant Database
 
 
-## Correction Request Flow
+%% =========================
+%% 1️⃣ Attendance Marking Flow
+%% =========================
 
-Student -> Frontend:
-Submit correction request
+Student ->> Frontend: Mark Attendance
+Frontend ->> AttendanceController: POST /attendance/mark
 
-Frontend -> API:
-POST /attendance/correction-request
+AttendanceController ->> AttendanceService: markAttendance(sessionId, studentId)
 
-CorrectionController -> CorrectionService:
-createRequest()
+AttendanceService ->> SessionService: validateSession(sessionId)
+SessionService ->> SessionRepository: findById(sessionId)
+SessionRepository ->> Database: query session
+Database -->> SessionRepository: session
 
-CorrectionService -> AttendanceRepository:
-validateOriginalRecord()
+AttendanceService ->> AttendanceLockPolicy: checkLock(session)
+AttendanceService ->> LateRuleEngine: evaluateLateStatus(session, currentTime)
 
-CorrectionService -> CorrectionRepository:
-saveRequest()
+AttendanceService ->> AttendanceRepository: save(attendance)
+AttendanceRepository ->> Database: insert attendance
+Database -->> AttendanceRepository: success
 
-CorrectionService -> NotificationService:
-notifyTeacher()
+AttendanceService ->> AuditService: logCreation()
+AuditService ->> AuditRepository: save(log)
+AuditRepository ->> Database: insert audit log
+Database -->> AuditRepository: success
 
-Teacher -> Frontend:
-Review request
+AttendanceService -->> AttendanceController: attendanceMarked
+AttendanceController -->> Frontend: Attendance marked successfully
 
-Frontend -> API:
-POST /attendance/correction/{id}/decision
 
-CorrectionController -> CorrectionService:
-processDecision()
+%% =========================
+%% 2️⃣ Attendance Correction Request Flow
+%% =========================
 
-CorrectionService:
-validateTeacherAuthority()
+Student ->> Frontend: Submit Correction Request
+Frontend ->> CorrectionController: POST /attendance/correction
 
-CorrectionService -> AttendanceService:
-applyCorrection()
+CorrectionController ->> CorrectionService: createRequest(attendanceId, reason)
 
-AttendanceService -> AttendanceRepository:
-updateAttendance()
+CorrectionService ->> AttendanceRepository: findById(attendanceId)
+AttendanceRepository ->> Database: query attendance
+Database -->> AttendanceRepository: attendanceRecord
 
-AttendanceService -> AuditService:
-logAttendanceChange()
+CorrectionService ->> CorrectionRepository: save(request)
+CorrectionRepository ->> Database: insert correction request
+Database -->> CorrectionRepository: success
 
-CorrectionService -> CorrectionRepository:
-updateStatus()
+CorrectionService ->> NotificationService: notifyTeacher()
+NotificationService -->> Teacher: New correction request
 
-Admin Override (optional):
+CorrectionService -->> CorrectionController: requestCreated
+CorrectionController -->> Frontend: Request submitted
 
-Admin -> API:
-POST /attendance/correction/{id}/override
 
-CorrectionService:
-forceApplyCorrection()
+%% =========================
+%% 3️⃣ Teacher Review & Decision Flow
+%% =========================
+
+Teacher ->> Frontend: Review Correction Request
+Frontend ->> CorrectionController: POST /attendance/correction/{id}/decision
+
+CorrectionController ->> CorrectionService: processDecision(requestId, decision)
+
+CorrectionService ->> CorrectionRepository: findById(requestId)
+CorrectionRepository ->> Database: query request
+Database -->> CorrectionRepository: request
+
+CorrectionService ->> AttendanceService: applyCorrection(attendanceId, newStatus)
+
+AttendanceService ->> AttendanceRepository: update(attendance)
+AttendanceRepository ->> Database: update attendance
+Database -->> AttendanceRepository: success
+
+AttendanceService ->> AuditService: logUpdate()
+AuditService ->> AuditRepository: save(log)
+AuditRepository ->> Database: insert audit log
+Database -->> AuditRepository: success
+
+CorrectionService ->> CorrectionRepository: updateStatus()
+CorrectionRepository ->> Database: update request
+Database -->> CorrectionRepository: success
+
+CorrectionService -->> CorrectionController: decisionProcessed
+CorrectionController -->> Frontend: Decision recorded
+
+
+%% =========================
+%% 4️⃣ Admin Override Flow
+%% =========================
+
+Admin ->> Frontend: Override Correction Decision
+Frontend ->> CorrectionController: POST /attendance/correction/{id}/override
+
+CorrectionController ->> CorrectionService: overrideDecision(requestId)
+
+CorrectionService ->> AttendanceService: forceApplyCorrection()
+AttendanceService ->> AttendanceRepository: update(attendance)
+AttendanceRepository ->> Database: update attendance
+Database -->> AttendanceRepository: success
+
+AttendanceService ->> AuditService: logOverride()
+AuditService ->> AuditRepository: save(log)
+AuditRepository ->> Database: insert audit log
+Database -->> AuditRepository: success
+
+CorrectionService ->> CorrectionRepository: updateStatus()
+CorrectionRepository ->> Database: update request
+Database -->> CorrectionRepository: success
+
+CorrectionService -->> CorrectionController: overrideCompleted
+CorrectionController -->> Frontend: Override successful
+
+
+%% =========================
+%% 5️⃣ Performance Analytics Flow
+%% =========================
+
+Teacher ->> Frontend: View Class Performance
+Frontend ->> AnalyticsController: GET /analytics/class
+
+AnalyticsController ->> AnalyticsService: generateClassReport()
+
+AnalyticsService ->> AttendanceRepository: fetchAttendanceData()
+AttendanceRepository ->> Database: query attendance
+Database -->> AttendanceRepository: attendanceData
+
+AnalyticsService ->> AnalyticsService: calculateAttendancePercentage()
+AnalyticsService ->> AnalyticsService: calculateLateFrequency()
+
+AnalyticsService -->> AnalyticsController: analyticsReport
+AnalyticsController -->> Frontend: Display analytics

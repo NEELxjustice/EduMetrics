@@ -1,50 +1,62 @@
-# Sequence Diagram – HireLens AI Matching Flow
+
+---
+
+# ✅ sequenceDiagram.md  
+(Main end-to-end flow: session attendance → late rule → correction → approval → analytics)
+
+```md
+# Sequence Diagram – Attendance & Performance Flow
 
 ```mermaid
 sequenceDiagram
     autonumber
 
-    actor Candidate
-    actor Recruiter
+    actor Student
+    actor Teacher
     actor Admin
 
-    participant UI as Web App (Frontend)
+    participant UI as Frontend
     participant API as Backend API
-    participant AI as Matching Engine
+    participant AttendanceSvc as Attendance Service
+    participant RuleSvc as Late Rule Engine
+    participant WorkflowSvc as Correction Workflow
+    participant AnalyticsSvc as Analytics Service
     participant DB as Database
 
-    %% Candidate uploads resume
-    Candidate ->> UI: Upload resume
-    UI ->> API: POST /resumes
-    API ->> AI: Generate resume embedding
-    AI -->> API: Resume vector
-    API ->> DB: Store resume + embedding
-    API -->> UI: Upload success
+    %% Session attendance
+    Teacher ->> UI: Start session & mark attendance
+    UI ->> API: POST /sessions/{id}/attendance
+    API ->> AttendanceSvc: markAttendance()
 
-    %% Recruiter uploads job
-    Recruiter ->> UI: Upload job description
-    UI ->> API: POST /jobs
-    API ->> AI: Generate job embedding
-    AI -->> API: Job vector
-    API ->> DB: Store job + embedding
-    API -->> UI: Job created
+    AttendanceSvc ->> RuleSvc: applyLateEntryRules()
+    RuleSvc -->> AttendanceSvc: late / present
 
-    %% Recruiter requests matching
-    Recruiter ->> UI: View ranked candidates
-    UI ->> API: GET /jobs/{id}/matches
-    API ->> DB: Fetch resumes & job
-    API ->> AI: Compute similarity scores
-    AI -->> API: Scores + explanations
-    API ->> DB: Store match results
-    API -->> UI: Ranked candidates list
+    AttendanceSvc ->> DB: save attendance records
+    API -->> UI: attendance marked
 
-    %% Recruiter gives feedback
-    Recruiter ->> UI: Submit feedback
-    UI ->> API: POST /feedback
-    API ->> DB: Save feedback
+    %% Student requests correction
+    Student ->> UI: Request attendance correction
+    UI ->> API: POST /attendance/correction
+    API ->> WorkflowSvc: createCorrectionRequest()
+    WorkflowSvc ->> DB: store request
+    API -->> UI: request submitted
 
-    %% Admin monitors system
-    Admin ->> UI: View model performance
-    UI ->> API: GET /admin/metrics
-    API ->> DB: Fetch logs & stats
-    API -->> UI: Metrics dashboard
+    %% Teacher approval
+    Teacher ->> UI: Review correction
+    UI ->> API: POST /corrections/{id}/approve
+    API ->> WorkflowSvc: processApproval()
+    WorkflowSvc ->> DB: update approval step
+
+    %% Admin approval (if required)
+    Admin ->> UI: Final approval
+    UI ->> API: POST /corrections/{id}/final-approve
+    API ->> WorkflowSvc: finalizeRequest()
+    WorkflowSvc ->> DB: update attendance record
+
+    %% Analytics
+    Teacher ->> UI: View class performance
+    UI ->> API: GET /analytics/class
+    API ->> AnalyticsSvc: generateClassReport()
+    AnalyticsSvc ->> DB: fetch attendance, marks, participation
+    AnalyticsSvc -->> API: report
+    API -->> UI: dashboard data

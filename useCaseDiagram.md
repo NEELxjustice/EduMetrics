@@ -1,40 +1,46 @@
-# Use Case Diagram – HireLens AI System
+# Use Case Diagram – Digital Attendance & Performance Monitoring Platform
 
 ```mermaid
 flowchart LR
 
-%% Actors
-Candidate[Candidate]
-Recruiter[Recruiter]
+Student[Student]
+Teacher[Teacher]
 Admin[Admin]
 
-%% System boundary
-subgraph HireLens_AI_System[HireLens AI System]
+subgraph System[Digital Attendance & Performance Monitoring Platform]
 
-    UC1((Register / Login))
-    UC2((Upload Resume))
-    UC3((View Resume Insights))
-    UC4((Upload Job Description))
-    UC5((View Ranked Candidates))
-    UC6((View Match Explanation))
-    UC7((Give Feedback on Match))
-    UC8((Manage Users))
-    UC9((Monitor Model Performance))
+    UC1((Login))
+    UC2((Mark Session Attendance))
+    UC3((View Attendance))
+    UC4((Request Attendance Correction))
+    UC5((Approve / Reject Correction))
+    UC6((Create Session))
+    UC7((Create Assignment))
+    UC8((Submit Assignment))
+    UC9((Grade Assignment))
+    UC10((View Performance Analytics))
+    UC11((Track Participation))
+    UC12((Manage Late Entry Rules))
+    UC13((Manage Users))
 
 end
 
-%% Candidate interactions
-Candidate --> UC1
-Candidate --> UC2
-Candidate --> UC3
+Student --> UC1
+Student --> UC3
+Student --> UC4
+Student --> UC8
+Student --> UC10
 
-%% Recruiter interactions
-Recruiter --> UC1
-Recruiter --> UC4
-Recruiter --> UC5
-Recruiter --> UC6
-Recruiter --> UC7
+Teacher --> UC1
+Teacher --> UC2
+Teacher --> UC6
+Teacher --> UC7
+Teacher --> UC9
+Teacher --> UC5
+Teacher --> UC10
+Teacher --> UC11
 
-%% Admin interactions
-Admin --> UC8
-Admin --> UC9
+Admin --> UC5
+Admin --> UC12
+Admin --> UC13
+Admin --> UC10

@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
 
     USERS {
@@ -57,3 +58,4 @@ erDiagram
     JOBS ||--o{ MATCH_RESULTS : produces
     RESUMES ||--o{ MATCH_RESULTS : participates
     MATCH_RESULTS ||--|| FEEDBACK : has
+```

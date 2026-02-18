@@ -1,103 +1,264 @@
-# Class Diagram – HireLens AI
+# Class Diagram – Digital Attendance & Performance Monitoring Platform
 
-## Core Domain Classes
+```mermaid
+classDiagram
 
-### User
-- id
-- email
-- role
+%% =========================
+%% Core Users
+%% =========================
 
-### Candidate (extends User)
+class User {
+  +String id
+  +String email
+  +String passwordHash
+  +String role
+}
 
-### Recruiter (extends User)
+class Student
+class Teacher
+class Admin
 
-### Admin (extends User)
+User <|-- Student
+User <|-- Teacher
+User <|-- Admin
 
----
 
-### Resume
-- id
-- candidateId
-- rawText
-- skills
-- experienceSummary
-- embeddingVector
+%% =========================
+%% Academic Structure
+%% =========================
 
----
+class Course {
+  +String id
+  +String name
+  +String description
+}
 
-### JobDescription
-- id
-- recruiterId
-- title
-- requiredSkills
-- experienceLevel
-- embeddingVector
+class Session {
+  +String id
+  +Date sessionDate
+  +Time startTime
+  +Time endTime
+  +String status
+}
 
----
+Teacher "1" --> "0..*" Course
+Course "1" --> "0..*" Session
 
-### MatchResult
-- id
-- jobId
-- resumeId
-- finalScore
-- rank
-- scoreBreakdown
 
----
+%% =========================
+%% Attendance
+%% =========================
 
-### Feedback
-- id
-- matchResultId
-- recruiterId
-- decision
-- createdAt
+class AttendanceRecord {
+  +String id
+  +String studentId
+  +String sessionId
+  +DateTime markedAt
+  +String status
+  +Boolean lateEntry
+}
 
----
+Student "1" --> "0..*" AttendanceRecord
+Session "1" --> "0..*" AttendanceRecord
 
-### ScoringProfile
-- id
-- skillWeight
-- experienceWeight
-- semanticWeight
-- effectiveFrom
 
----
+%% =========================
+%% Late Entry Rules
+%% =========================
 
-## Service Layer
+class LateEntryRule {
+  +String id
+  +int allowedMinutes
+  +Boolean autoMarkLate
+  +Boolean blockAfterLimit
+}
 
-### ResumeService
-- processResume()
+Session --> LateEntryRule
 
-### JobService
-- processJobDescription()
 
-### MatchService
-- generateMatches()
+%% =========================
+%% Attendance Correction Workflow
+%% =========================
 
-### FeedbackService
-- recordFeedback()
+class AttendanceCorrectionRequest {
+  +String id
+  +String attendanceId
+  +String studentId
+  +String reason
+  +String status
+  +Date createdAt
+}
 
----
+class ApprovalStep {
+  +String id
+  +String requestId
+  +String approverId
+  +String decision
+  +DateTime actionTime
+}
 
-## Domain Engines
+AttendanceRecord "1" --> "0..*" AttendanceCorrectionRequest
+AttendanceCorrectionRequest "1" --> "1..*" ApprovalStep
+Teacher --> ApprovalStep
+Admin --> ApprovalStep
 
-### MatchingEngine
-- computeSimilarityScore()
-- computeWeightedScore()
-- rankCandidates()
 
-### AdaptiveScoringEngine
-- analyseFeedbackHistory()
-- updateScoringWeights()
+%% =========================
+%% Assignments & Marks
+%% =========================
 
----
+class Assignment {
+  +String id
+  +String courseId
+  +String title
+  +Date dueDate
+  +int maxMarks
+}
 
-## Relationships
+class Submission {
+  +String id
+  +String assignmentId
+  +String studentId
+  +Date submittedAt
+}
 
-- Candidate owns many Resume
-- Recruiter owns many JobDescription
-- JobDescription produces many MatchResult
-- Resume participates in many MatchResult
-- MatchResult has one Feedback
-- MatchingEngine is used by MatchService
-- AdaptiveScoringEngine is used by FeedbackService
+class Mark {
+  +String id
+  +String submissionId
+  +int score
+  +String feedback
+}
+
+Course "1" --> "0..*" Assignment
+Assignment "1" --> "0..*" Submission
+Submission "1" --> "0..1" Mark
+Student --> Submission
+
+
+%% =========================
+%% Participation Tracking
+%% =========================
+
+class ParticipationRecord {
+  +String id
+  +String studentId
+  +String sessionId
+  +int interactionCount
+  +float participationScore
+}
+
+Student --> ParticipationRecord
+Session --> ParticipationRecord
+
+
+%% =========================
+%% Performance & Analytics
+%% =========================
+
+class PerformanceReport {
+  +String id
+  +String studentId
+  +float attendanceRate
+  +float averageMarks
+  +float participationScore
+  +Date generatedAt
+}
+
+Student "1" --> "0..*" PerformanceReport
+
+
+%% =========================
+%% Application Layer
+%% =========================
+
+class StudentController {
+  +viewAttendance()
+  +viewPerformance()
+  +submitCorrectionRequest()
+}
+
+class TeacherController {
+  +markAttendance()
+  +publishAssignment()
+  +approveCorrection()
+  +viewClassAnalytics()
+}
+
+class AdminController {
+  +manageUsers()
+  +manageRules()
+  +monitorSystem()
+}
+
+
+%% =========================
+%% Service Layer
+%% =========================
+
+class AttendanceService {
+  +markAttendance()
+  +applyLateRules()
+}
+
+class CorrectionWorkflowService {
+  +createRequest()
+  +processApproval()
+}
+
+class AssignmentService {
+  +createAssignment()
+  +gradeSubmission()
+}
+
+class ParticipationService {
+  +trackParticipation()
+}
+
+class AnalyticsService {
+  +generateStudentReport()
+  +generateClassReport()
+}
+
+
+%% =========================
+%% Repository Layer
+%% =========================
+
+class AttendanceRepository
+class CorrectionRepository
+class AssignmentRepository
+class SubmissionRepository
+class PerformanceRepository
+class UserRepository
+
+
+%% =========================
+%% Dependencies
+%% =========================
+
+StudentController --> AttendanceService
+StudentController --> AnalyticsService
+StudentController --> CorrectionWorkflowService
+
+TeacherController --> AttendanceService
+TeacherController --> AssignmentService
+TeacherController --> CorrectionWorkflowService
+TeacherController --> AnalyticsService
+
+AdminController --> UserRepository
+AdminController --> AttendanceService
+
+AttendanceService --> AttendanceRepository
+AttendanceService --> LateEntryRule
+
+CorrectionWorkflowService --> CorrectionRepository
+CorrectionWorkflowService --> ApprovalStep
+
+AssignmentService --> AssignmentRepository
+AssignmentService --> SubmissionRepository
+
+ParticipationService --> ParticipationRecord
+
+AnalyticsService --> PerformanceRepository
+AnalyticsService --> AttendanceRepository
+AnalyticsService --> SubmissionRepository

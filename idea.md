@@ -1,192 +1,210 @@
-# HireLens AI – Intelligent Resume to Job Matching Platform
+# Digital Attendance & Performance Monitoring Platform
 
 ## 1. Problem Statement
 
-Recruiters receive a very large number of resumes for every job opening.  
-Manual resume screening is:
+Educational institutes and training centres still rely on manual or partially automated systems to track student attendance and academic performance.  
+These systems fail to capture:
 
-- time consuming
-- inconsistent between recruiters
-- highly dependent on keyword matching
-- not able to improve based on past hiring decisions
+- real-time, session-based attendance
+- late entry handling
+- correction and approval workflows
+- participation tracking
+- unified performance analytics
 
-Most existing Applicant Tracking Systems (ATS) only perform simple keyword search and do not learn from recruiter feedback.
+This leads to inaccurate attendance records, manual reconciliation work for teachers, and limited visibility into student performance trends.
 
-There is a need for a system that can:
-- understand resumes and job descriptions semantically
-- rank candidates using multiple factors
-- continuously improve matching quality using feedback.
+The goal of this project is to build a full-stack Digital Attendance and Performance Monitoring Platform with strong backend design that supports real academic workflows and approval pipelines.
 
 ---
 
-## 2. Project Objective
+## 2. Objective
 
-To build a full-stack platform that:
+To design and implement a scalable backend-centric platform that allows institutes to:
 
-- processes resumes and job descriptions
-- extracts structured information
-- generates semantic representations
-- matches candidates to jobs
-- ranks candidates
-- captures recruiter feedback
-- adapts its scoring strategy over time
-
-The primary focus of this project is backend architecture, system design and business logic.
+- record real-time session-based attendance
+- automatically apply late-entry rules
+- manage attendance correction requests with multi-level approvals
+- track student participation
+- manage assignments and marks
+- generate performance analytics for students and classes
 
 ---
 
-## 3. Actors
+## 3. Target Users
 
-### Candidate
-A user who uploads a resume and views job-matching feedback.
-
-### Recruiter
-A user who uploads job descriptions, views ranked candidates and provides feedback.
-
-### Admin
-A system administrator who monitors performance and controls scoring configurations.
+- Students
+- Teachers
+- Academic administrators
 
 ---
 
-## 4. Functional Scope
+## 4. System Scope
 
-### 4.1 Authentication and Role Management
+This system covers the complete academic activity lifecycle of a class:
 
-- Users can register and log in.
-- Role based access is enforced (Candidate / Recruiter / Admin).
+- user authentication and role-based access
+- session creation and management
+- attendance marking and late entry detection
+- attendance correction and approval workflow
+- participation tracking per session
+- assignment creation, submission and grading
+- performance reporting and analytics
 
----
-
-### 4.2 Resume Processing Module
-
-Candidate uploads a resume in PDF format.
-
-System performs:
-- text extraction
-- skill extraction
-- experience summary extraction
-- embedding generation for semantic representation
-
-A structured resume profile is stored in the database.
+The project focuses primarily on backend architecture, workflows and data integrity.
 
 ---
 
-### 4.3 Job Description Processing Module
+## 5. Core Functional Modules
 
-Recruiter submits job description text.
+### 5.1 Authentication & Role Management
 
-System performs:
-- extraction of required skills
-- extraction of experience level
-- generation of semantic embedding
-
-A structured job profile is stored.
+- Student, Teacher and Admin login
+- Role-based access control for all APIs
 
 ---
 
-### 4.4 Matching and Ranking Module
+### 5.2 Session-Based Attendance
 
-For a selected job:
-
-- all eligible resumes are retrieved
-- similarity scores are computed
-- weighted scoring is applied using:
-  - skill overlap
-  - experience relevance
-  - semantic similarity
-- candidates are ranked
+- Teachers create class sessions
+- Teachers mark attendance for each session
+- Attendance is recorded per student per session
 
 ---
 
-### 4.5 Recruiter Feedback Module
+### 5.3 Late Entry Rules Engine
 
-Recruiter can mark a candidate as:
-
-- relevant
-- not relevant
-- shortlisted
-- rejected
-
-This feedback is stored for learning purposes.
+- Configurable late-entry rules per institute
+- Automatic classification of:
+  - Present
+  - Late
+  - Absent
+- Support for blocking attendance after a defined time window
 
 ---
 
-### 4.6 Adaptive Scoring Module
+### 5.4 Attendance Correction Workflow
 
-The system periodically analyses:
-
-- historical match results
-- recruiter feedback patterns
-
-The system updates internal scoring weights used during ranking.
-
-Previous scoring configurations are preserved for reproducibility.
-
----
-
-### 4.7 Candidate Feedback Module
-
-Candidate can view:
-- match summary
-- missing skills
-- improvement suggestions generated by AI
+- Students can raise attendance correction requests
+- Each request contains:
+  - affected attendance record
+  - justification
+- Multi-step approval pipeline:
+  - teacher approval
+  - optional admin approval
+- Automatic update of attendance record after final approval
 
 ---
 
-## 5. Out of Scope
+### 5.5 Participation Tracking
 
-- interview scheduling
-- chat or messaging
-- onboarding and offer management
+- Participation is tracked per student per session
+- Stores interaction count and derived participation score
+- Used as an input for performance analytics
 
 ---
 
-## 6. Technology Stack
+### 5.6 Assignment and Marks Management
+
+- Teachers create assignments per course
+- Students submit assignments
+- Teachers evaluate submissions and assign marks
+- Feedback is stored with marks
+
+---
+
+### 5.7 Performance Analytics
+
+- Student-level performance reports
+- Class-level analytics for teachers
+- Metrics include:
+  - attendance rate
+  - average marks
+  - participation score
+  - trends over time
+
+---
+
+## 6. Non-Trivial Backend Logic
+
+This project intentionally includes complex backend workflows:
+
+### Late Entry Rules Engine
+- dynamic rule evaluation during attendance marking
+- automatic late detection based on session start time
+
+### Attendance Correction Pipeline
+- state-based workflow for correction requests
+- multiple approval steps
+- audit trail of approvals
+
+### Approval Pipeline
+- role-based approval routing
+- conditional escalation to admin
+- transactional updates to attendance records
+
+### Analytics Aggregation
+- multi-table aggregation
+- time-based and course-based metrics
+
+---
+
+## 7. Backend Architecture
+
+The backend follows a layered and maintainable architecture:
+
+- Controllers – API layer
+- Services – business logic and workflows
+- Repositories – data access layer
+- Domain models – core entities
+- Rule and workflow services – late entry rules and approval pipelines
+
+Structure follows:
+
+Controller → Service → Repository
+
+---
+
+## 8. Software Engineering Practices
+
+The backend design explicitly applies:
+
+- Encapsulation through service and repository layers
+- Abstraction through domain-oriented interfaces
+- Inheritance for user roles (Student, Teacher, Admin)
+- Polymorphism in rule evaluation and approval workflows
+
+Design patterns are used where suitable, such as:
+
+- Strategy pattern for late-entry rule evaluation
+- State-like handling for correction request workflow
+
+---
+
+## 9. Technology Stack
 
 Frontend:
 - React
 
 Backend:
 - Node.js
-- Express
+- Express.js
+
+Database:
 - MongoDB
 
-AI utilities:
-- text extraction
-- embedding generation
-- suggestion generation
+Authentication:
+- JWT based authentication
 
 ---
 
-## 7. Architecture
+## 10. Deliverables
 
-The backend follows:
+The GitHub repository contains:
 
-- Controller – Service – Repository architecture
-- Domain engines for complex logic
-
-Major layers:
-- Controllers
-- Services
-- Domain engines
-- Repositories
-- Data models
+- idea.md – project description and scope
+- useCaseDiagram.md – use case diagram
+- sequenceDiagram.md – end-to-end workflow diagram
+- classDiagram.md – class design and architecture
+- ErDiagram.md – database design
 
 ---
-
-## 8. Design Principles
-
-- Encapsulation of business logic inside services and domain engines
-- Abstraction between API layer and domain logic
-- Inheritance for user roles
-- Polymorphism for scoring strategies
-- SOLID principles
-
----
-
-## 9. Success Criteria
-
-- Clean backend structure
-- Reproducible match results
-- Feedback driven scoring updates
-- Extensible system design

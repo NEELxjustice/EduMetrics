@@ -1,118 +1,58 @@
-
----
-
-# ✅ ErDiagram.md
-
-```md
-# ER Diagram – Digital Attendance & Performance Monitoring Platform
-
 ```mermaid
 erDiagram
 
-    USERS {
-        string id
-        string email
-        string passwordHash
-        string role
-    }
+USERS {
+  string id PK
+  string name
+  string email
+  string password
+  string role
+}
 
-    COURSES {
-        string id
-        string name
-        string description
-        string teacherId
-    }
+SESSIONS {
+  string id PK
+  date session_date
+  string subject
+  string teacher_id FK
+}
 
-    SESSIONS {
-        string id
-        string courseId
-        datetime sessionDate
-        string status
-    }
+ATTENDANCE {
+  string id PK
+  string student_id FK
+  string session_id FK
+  string status
+  boolean is_late
+  datetime marked_at
+}
 
-    ATTENDANCE_RECORDS {
-        string id
-        string studentId
-        string sessionId
-        datetime markedAt
-        string status
-        boolean lateEntry
-    }
+ASSIGNMENTS {
+  string id PK
+  string title
+  number max_marks
+  string teacher_id FK
+}
 
-    LATE_ENTRY_RULES {
-        string id
-        int allowedMinutes
-        boolean autoMarkLate
-        boolean blockAfterLimit
-    }
+MARKS {
+  string id PK
+  string student_id FK
+  string assignment_id FK
+  number obtained_marks
+}
 
-    ATTENDANCE_CORRECTION_REQUESTS {
-        string id
-        string attendanceId
-        string studentId
-        string reason
-        string status
-        datetime createdAt
-    }
+CORRECTION_REQUESTS {
+  string id PK
+  string student_id FK
+  string attendance_id FK
+  string reason
+  string status
+  datetime created_at
+}
 
-    APPROVAL_STEPS {
-        string id
-        string requestId
-        string approverId
-        string decision
-        datetime actionTime
-    }
-
-    ASSIGNMENTS {
-        string id
-        string courseId
-        string title
-        datetime dueDate
-        int maxMarks
-    }
-
-    SUBMISSIONS {
-        string id
-        string assignmentId
-        string studentId
-        datetime submittedAt
-    }
-
-    MARKS {
-        string id
-        string submissionId
-        int score
-        string feedback
-    }
-
-    PARTICIPATION_RECORDS {
-        string id
-        string studentId
-        string sessionId
-        int interactionCount
-        float participationScore
-    }
-
-    PERFORMANCE_REPORTS {
-        string id
-        string studentId
-        float attendanceRate
-        float averageMarks
-        float participationScore
-        datetime generatedAt
-    }
-
-    USERS ||--o{ COURSES : teaches
-    COURSES ||--o{ SESSIONS : has
-    USERS ||--o{ ATTENDANCE_RECORDS : marks
-    SESSIONS ||--o{ ATTENDANCE_RECORDS : contains
-
-    ATTENDANCE_RECORDS ||--o{ ATTENDANCE_CORRECTION_REQUESTS : has
-    ATTENDANCE_CORRECTION_REQUESTS ||--o{ APPROVAL_STEPS : includes
-
-    COURSES ||--o{ ASSIGNMENTS : contains
-    ASSIGNMENTS ||--o{ SUBMISSIONS : receives
-    SUBMISSIONS ||--|| MARKS : results_in
-
-    USERS ||--o{ PARTICIPATION_RECORDS : generates
-    USERS ||--o{ PERFORMANCE_REPORTS : has
+USERS ||--o{ SESSIONS : creates
+USERS ||--o{ ATTENDANCE : has
+SESSIONS ||--o{ ATTENDANCE : contains
+USERS ||--o{ MARKS : receives
+ASSIGNMENTS ||--o{ MARKS : evaluates
+ATTENDANCE ||--o{ CORRECTION_REQUESTS : generates
+USERS ||--o{ CORRECTION_REQUESTS : submits
+```

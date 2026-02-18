@@ -1,35 +1,34 @@
-```mermaid
 erDiagram
 
     USERS {
-        string _id
+        string id
         string email
         string passwordHash
         string role
     }
 
     RESUMES {
-        string _id
+        string id
         string candidateId
         string rawText
         string skills
         string experienceSummary
         string embeddingVector
-        date createdAt
+        datetime createdAt
     }
 
     JOBS {
-        string _id
+        string id
         string recruiterId
         string title
         string requiredSkills
         string experienceLevel
         string embeddingVector
-        date createdAt
+        datetime createdAt
     }
 
     MATCH_RESULTS {
-        string _id
+        string id
         string jobId
         string resumeId
         float finalScore
@@ -38,19 +37,19 @@ erDiagram
     }
 
     FEEDBACK {
-        string _id
+        string id
         string matchResultId
         string recruiterId
         string decision
-        date createdAt
+        datetime createdAt
     }
 
     SCORING_PROFILES {
-        string _id
+        string id
         float skillWeight
         float experienceWeight
         float semanticWeight
-        date effectiveFrom
+        datetime effectiveFrom
     }
 
     USERS ||--o{ RESUMES : owns
@@ -58,4 +57,3 @@ erDiagram
     JOBS ||--o{ MATCH_RESULTS : produces
     RESUMES ||--o{ MATCH_RESULTS : participates
     MATCH_RESULTS ||--|| FEEDBACK : has
-```

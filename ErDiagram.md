@@ -1,65 +1,67 @@
-# ER Diagram – Digital Attendance & Performance Platform
+# ER Diagram – HireLens AI
 
 ## users
 - _id
-- name
 - email
 - passwordHash
 - role
-- rollNumber
-- department
-- batchId
 
-## sessions
-- _id
-- courseId
-- teacherId (FK -> users)
-- startTime
-- endTime
+---
 
-## attendance
+## resumes
 - _id
-- sessionId (FK -> sessions)
-- studentId (FK -> users)
-- status
-- markedAt
+- candidateId (FK → users._id)
+- rawText
+- skills
+- experienceSummary
+- embeddingVector
+- createdAt
 
-## attendance_corrections
-- _id
-- attendanceId (FK -> attendance)
-- studentId (FK -> users)
-- reason
-- status
-- reviewedBy (FK -> users)
-- decisionAt
+---
 
-## assignments
+## jobs
 - _id
-- courseId
-- createdBy (FK -> users)
-- dueDate
+- recruiterId (FK → users._id)
+- title
+- requiredSkills
+- experienceLevel
+- embeddingVector
+- createdAt
 
-## submissions
-- _id
-- assignmentId (FK -> assignments)
-- studentId (FK -> users)
-- submittedAt
-- marks
+---
 
-## audit_logs
+## match_results
 - _id
-- entityType
-- entityId
-- action
-- performedBy (FK -> users)
-- timestamp
+- jobId (FK → jobs._id)
+- resumeId (FK → resumes._id)
+- finalScore
+- rank
+- scoreBreakdown
+
+---
+
+## feedback
+- _id
+- matchResultId (FK → match_results._id)
+- recruiterId (FK → users._id)
+- decision
+- createdAt
+
+---
+
+## scoring_profiles
+- _id
+- skillWeight
+- experienceWeight
+- semanticWeight
+- effectiveFrom
+
+---
 
 ## Relationships
 
-users (Teacher) 1 -> N sessions
-users (Student) 1 -> N attendance
-sessions 1 -> N attendance
-attendance 1 -> 0..1 attendance_corrections
-assignments 1 -> N submissions
-users 1 -> N submissions
-users 1 -> N audit_logs
+- One candidate (user) can have many resumes
+- One recruiter (user) can create many jobs
+- One job can have many match results
+- One resume can appear in many match results
+- One match result can have one feedback

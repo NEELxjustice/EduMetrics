@@ -1,30 +1,36 @@
-@startuml
-left to right direction
+# Use Case Diagram – HireLens AI
 
-actor Student
-actor Teacher
-actor Admin
+## Actors
 
-Student --> (Login)
-Student --> (Mark Attendance)
-Student --> (View Attendance History)
-Student --> (Submit Correction Request)
-Student --> (Submit Assignment)
-Student --> (View Performance Analytics)
+- Candidate
+- Recruiter
+- Admin
 
-Teacher --> (Create Session)
-Teacher --> (Mark Session Attendance)
-Teacher --> (Review Correction Request)
-Teacher --> (Approve / Reject Correction)
-Teacher --> (Create Assignment)
-Teacher --> (Evaluate Assignment)
-Teacher --> (View Class Analytics)
+---
 
-Admin --> (Manage Users)
-Admin --> (Configure Late Rules)
-Admin --> (Configure Attendance Lock Rules)
-Admin --> (Override Attendance Decision)
-Admin --> (View Institute Analytics)
-Admin --> (View Audit Logs)
+## Candidate Use Cases
 
-@enduml
+- Register and login
+- Upload resume
+- View match feedback
+- View missing skills
+- View improvement suggestions
+
+---
+
+## Recruiter Use Cases
+
+- Register and login
+- Upload job description
+- View ranked candidates
+- View candidate match details
+- Provide feedback on candidates
+
+---
+
+## Admin Use Cases
+
+- View system usage analytics
+- View matching performance metrics
+- Manage scoring configuration
+- Enable or disable scoring profiles

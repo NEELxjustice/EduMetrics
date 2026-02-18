@@ -1,91 +1,103 @@
-# Class Diagram – Major Backend Classes
+# Class Diagram – HireLens AI
 
-## User (abstract)
+## Core Domain Classes
+
+### User
 - id
-- name
 - email
 - role
 
-Methods:
-- getRole()
+### Candidate (extends User)
 
-## Student extends User
-- rollNumber
-- batchId
+### Recruiter (extends User)
 
-## Teacher extends User
-- department
+### Admin (extends User)
 
-## Admin extends User
+---
 
-## Session
+### Resume
 - id
-- courseId
-- teacherId
-- startTime
-- endTime
+- candidateId
+- rawText
+- skills
+- experienceSummary
+- embeddingVector
 
-## Attendance
-- id
-- sessionId
-- studentId
-- status (PRESENT, LATE, ABSENT)
-- markedAt
+---
 
-## AttendanceCorrectionRequest
+### JobDescription
 - id
-- attendanceId
-- studentId
-- reason
-- status
-- reviewedBy
-- decisionAt
+- recruiterId
+- title
+- requiredSkills
+- experienceLevel
+- embeddingVector
 
-## Assignment
-- id
-- courseId
-- createdBy
-- dueDate
+---
 
-## Submission
+### MatchResult
 - id
-- assignmentId
-- studentId
-- submittedAt
-- marks
+- jobId
+- resumeId
+- finalScore
+- rank
+- scoreBreakdown
+
+---
+
+### Feedback
+- id
+- matchResultId
+- recruiterId
+- decision
+- createdAt
+
+---
+
+### ScoringProfile
+- id
+- skillWeight
+- experienceWeight
+- semanticWeight
+- effectiveFrom
+
+---
 
 ## Service Layer
 
-AttendanceService
-- markAttendance()
-- applyCorrection()
-- calculateAttendanceStats()
+### ResumeService
+- processResume()
 
-CorrectionService
-- createRequest()
-- processDecision()
-- overrideDecision()
+### JobService
+- processJobDescription()
 
-AssignmentService
-- createAssignment()
-- evaluateSubmission()
+### MatchService
+- generateMatches()
 
-AnalyticsService
-- generateStudentReport()
-- generateClassReport()
+### FeedbackService
+- recordFeedback()
 
-## Repository Layer
+---
 
-UserRepository
-SessionRepository
-AttendanceRepository
-CorrectionRepository
-AssignmentRepository
-SubmissionRepository
+## Domain Engines
 
-## Utility / Domain Services
+### MatchingEngine
+- computeSimilarityScore()
+- computeWeightedScore()
+- rankCandidates()
 
-LateRuleEngine
-AttendanceLockPolicy
-AuditService
-NotificationService
+### AdaptiveScoringEngine
+- analyseFeedbackHistory()
+- updateScoringWeights()
+
+---
+
+## Relationships
+
+- Candidate owns many Resume
+- Recruiter owns many JobDescription
+- JobDescription produces many MatchResult
+- Resume participates in many MatchResult
+- MatchResult has one Feedback
+- MatchingEngine is used by MatchService
+- AdaptiveScoringEngine is used by FeedbackService
